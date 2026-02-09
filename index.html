@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Valentine ? 💘</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:#fff5f8; margin:0; padding:24px; color:#1f1f1f;}
+    .card{max-width:720px; margin:0 auto; background:white; border-radius:18px; padding:22px; box-shadow:0 10px 30px rgba(0,0,0,.08);}
+    h1{margin:0 0 10px; font-size:26px;}
+    p{margin:10px 0;}
+    .q{margin:18px 0;}
+    .row{display:flex; gap:10px; flex-wrap:wrap;}
+    button, input, select{border-radius:14px; border:1px solid #eee; padding:12px 14px; font-size:16px; background:#fff;}
+    button{cursor:pointer;}
+    button.primary{background:#ff3b7a; border:none; color:white; font-weight:700;}
+    button.choice{background:#fff; }
+    .muted{color:#666; font-size:14px;}
+    .pill{display:inline-block; padding:6px 10px; border-radius:999px; background:#ffe3ec; margin-right:8px;}
+    .hidden{display:none;}
+    .footer{margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;}
+    .ok{font-size:18px;}
+    .tiny{font-size:12px; color:#777;}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Hey <span id="herName">Toi</span> 💘</h1>
+    <p>J’ai une question importante…</p>
+
+    <div id="step1" class="q">
+      <p class="ok">Tu veux être ma Valentine ? 😳</p>
+      <div class="row">
+        <button class="primary" onclick="accept()">OUI 🥰</button>
+        <button class="choice" onclick="tease()">Hmm… laisse-moi réfléchir 😏</button>
+      </div>
+      <p id="teaseMsg" class="muted hidden">Ok… mais sache que j’ai préparé un petit formulaire très officiel 😇</p>
+    </div>
+
+    <div id="step2" class="q hidden">
+      <p><span class="pill">Étape 1</span> On fait ça où ?</p>
+      <div class="row">
+        <button class="choice" onclick="setChoice('lieu','À la maison 🏠')">À la maison 🏠</button>
+        <button class="choice" onclick="setChoice('lieu','Dehors 🌃')">Dehors 🌃</button>
+      </div>
+    </div>
+
+    <div id="step3" class="q hidden">
+      <p><span class="pill">Étape 2</span> Qu’est-ce que tu veux manger ? 🍽️</p>
+      <input id="plat" placeholder="Ex: sushis, pâtes, tacos, raclette..." style="width:100%;" />
+      <p class="tiny">Écris exactement ce qui te fait plaisir 😌</p>
+      <div class="footer">
+        <button class="choice" onclick="nextFromPlat()">Continuer</button>
+      </div>
+    </div>
+
+    <div id="step4" class="q hidden">
+      <p><span class="pill">Étape 3</span> Et à boire ? 🥂</p>
+      <input id="boisson" placeholder="Ex: coca, thé, jus, vin, cocktail..." style="width:100%;" />
+      <div class="footer">
+        <button class="choice" onclick="nextFromBoisson()">Continuer</button>
+      </div>
+    </div>
+
+    <div id="step5" class="q hidden">
+      <p><span class="pill">Étape 4</span> Après, on part sur quoi ?</p>
+      <div class="row">
+        <button class="choice" onclick="setChoice('soiree','Soirée Netflix 🍿')">Netflix 🍿</button>
+        <button class="choice" onclick="setChoice('soiree','Soirée jeux 🎮')">Jeux 🎮</button>
+        <button class="choice" onclick="setChoice('soiree','Mix Netflix + jeux 😈')">Mix 😈</button>
+      </div>
+    </div>
+
+    <div id="result" class="q hidden">
+      <h2>Deal 💞</h2>
+      <p>Récap de ta soirée parfaite :</p>
+      <p id="recap" class="muted"></p>
+
+      <p class="muted">Envoie-moi ce récap en capture d’écran, ou clique ici pour copier :</p>
+      <div class="footer">
+        <button class="primary" onclick="copyRecap()">Copier le récap</button>
+        <button class="choice" onclick="shareHint()">Partager</button>
+      </div>
+      <p id="shareMsg" class="tiny hidden">Sur téléphone : tu peux copier/coller le récap dans un message 😄</p>
+      <p class="tiny">PS : tu as officiellement dit oui. C’est enregistré dans les archives de l’amour.</p>
+    </div>
+  </div>
+
+  <script>
+    // Personnalisation rapide :
+    const herName = "Mon cœur";   // ← remplace par son prénom
+    const yourName = "Moi";       // ← remplace par ton prénom
+    document.getElementById("herName").textContent = herName;
+
+    const state = { accepte:false, lieu:null, plat:null, boisson:null, soiree:null };
+
+    function accept(){
+      state.accepte = true;
+      document.getElementById("step2").classList.remove("hidden");
+      document.getElementById("teaseMsg").classList.add("hidden");
+      document.getElementById("step2").scrollIntoView({behavior:"smooth", block:"start"});
+    }
+    function tease(){
+      document.getElementById("teaseMsg").classList.remove("hidden");
+    }
+
+    function setChoice(key, value){
+      state[key] = value;
+
+      if(key === "lieu"){
+        document.getElementById("step3").classList.remove("hidden");
+        document.getElementById("step3").scrollIntoView({behavior:"smooth", block:"start"});
+      }
+      if(key === "soiree"){
+        showResult();
+      }
+    }
+
+    function nextFromPlat(){
+      const v = document.getElementById("plat").value.trim();
+      if(!v){ alert("Dis-moi ce que tu veux manger 😄"); return; }
+      state.plat = v;
+      document.getElementById("step4").classList.remove("hidden");
+      document.getElementById("step4").scrollIntoView({behavior:"smooth", block:"start"});
+    }
+
+    function nextFromBoisson(){
+      const v = document.getElementById("boisson").value.trim();
+      if(!v){ alert("Et à boire ? 😄"); return; }
+      state.boisson = v;
+      document.getElementById("step5").classList.remove("hidden");
+      document.getElementById("step5").scrollIntoView({behavior:"smooth", block:"start"});
+    }
+
+    function showResult(){
+      const recap =
+`${yourName} + ${herName} — Plan Valentine 💘
+• Lieu : ${state.lieu}
+• Plat : ${state.plat}
+• Boisson : ${state.boisson}
+• Après : ${state.soiree}`;
+
+      document.getElementById("recap").textContent = recap;
+      document.getElementById("result").classList.remove("hidden");
+      document.getElementById("result").scrollIntoView({behavior:"smooth", block:"start"});
+    }
+
+    async function copyRecap(){
+      const text = document.getElementById("recap").textContent;
+      try{
+        await navigator.clipboard.writeText(text);
+        alert("Copié ✅ Envoie-le moi 😄");
+      }catch(e){
+        alert("Copie manuelle : sélectionne le texte et copie-le 🙂");
+      }
+    }
+
+    function shareHint(){
+      document.getElementById("shareMsg").classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>
